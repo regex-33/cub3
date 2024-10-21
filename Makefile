@@ -69,8 +69,8 @@ SRC_FILES = free_memory.c \
 			main.c \
 			parse_color.c \
 			parsing.c \
-			utils.c	\
-			raycasting.c
+			utils.c
+			# raycasting.c
 # render_utils.c \
 # render.c \
 #init.c \

@@ -104,19 +104,15 @@ int set_image(t_game *data, char **current_image, char *error_message,
   // case : <spaces>no path<sapces>
   new_image_path = split[1];
   count = number_of_words(split);
-  printf("number count : %d\n", count);
   if (count != 2)
     return (print_error("Image path is not valid\n", RED), free2d(split),
             free_garbage(data->garbage), exit(1), 1);
   if (*current_image)
-    return (print_error(error_message, RED), free2d(split),
-            free_garbage(data->garbage), exit(1), 1);
+    return (print_error(error_message, RED), free2d(split), 1);
   *current_image = ft_strdup(new_image_path);
   if (!current_image)
     return (perror(PROGRAM_NAME), free2d(split), 1);
   add_to_garbage(&data->garbage, *current_image);
-  if (!*current_image)
-    return (perror(PROGRAM_NAME), free2d(split), 1);
   return (free2d(split), 0);
 }
 
@@ -191,7 +187,6 @@ int store_and_parse_map(char *line, t_game *data) {
   int len = 0;
 
   i = 0;
-  // d'not forget to remove spaces form begin of the line and the end of line.
   ft_replace(line, '\t', ' ');
   temp = ft_strtrim(line, " \n");
   if (!temp)
@@ -201,26 +196,24 @@ int store_and_parse_map(char *line, t_game *data) {
   len = ft_strlen(line);
   if (len > data->map.w_map)
     data->map.w_map = len;
-  // if (line[ft_strlen(line) - 1] == '\n')
-  //   line[ft_strlen(line) - 1] = '\0';
   if (!data->map.index || data->map.index == data->map.h_map - 1) {
     while (line[i] != '\0') {
       if (line[i] != '1' && line[i] != ' ')
-        return (print_error("Map is Nnot closed by 1\n", RED), 1);
+        return (print_error("Map is Nnot closed by 1\n", RED), free(line), 1);
       i++;
     }
   } else if (line[0] == '1' && line[ft_strlen(line) - 1] == '1') {
     if (have_player(line, data))
-      return (1);
+      return (free(line), 1);
   } else
-    return (print_error("nMap is not Valid\n", RED), 1);
+    return (print_error("nMap is not Valid\n", RED), free(line), 1);
   data->map.map[data->map.index] = ft_strdup(line);
   if (!data->map.map[data->map.index])
-    return (perror(PROGRAM_NAME), 1);
+    return (perror(PROGRAM_NAME), free(line), 1);
   add_to_garbage(&data->garbage, data->map.map[data->map.index]);
   data->map.index++;
   data->map.map[data->map.index] = NULL;
-  return (0);
+  return (free(line), 0);
 }
 
 void init_the_player(t_game *data) {
@@ -266,27 +259,13 @@ int init_arguments(char *path, t_game *data) {
   data->garbage = NULL;
 
   /* don't forget to free memory */
-  data->mlx = mlx_init();
-  if (!data->mlx)
-    return (print_error("Mlx failed\n", RED), 1);
-  data->imposter.img_back = mlx_xpm_file_to_image(
-      data->mlx, "img/test.xpm", &data->imposter.w, &data->imposter.h);
-  if (!data->imposter.img_back)
-    return (print_error("Imposter images not found back\n", RED), 1);
-  data->imposter.img_front = mlx_xpm_file_to_image(
-      data->mlx, "img/front.xpm", &data->imposter.w, &data->imposter.h);
-  if (!data->imposter.img_front)
-    return (print_error("Imposter images not found front\n", RED), 1);
-  data->imposter.img_right = mlx_xpm_file_to_image(
-      data->mlx, "img/right.xpm", &data->imposter.w, &data->imposter.h);
-  if (!data->imposter.img_right)
-    return (print_error("Imposter images not found right\n", RED), 1);
-  data->imposter.img_left = mlx_xpm_file_to_image(
-      data->mlx, "img/left.xpm", &data->imposter.w, &data->imposter.h);
-  if (!data->imposter.img_left)
-    return (print_error("Imposter images not found left\n", RED), 1);
-
+  // data->mlx = mlx_init();
+  // if (!data->mlx)
+  //   return (print_error("Mlx failed\n", RED), 1);
+  // add_to_garbage(&data->garbage, data->mlx);
   data->images = ft_calloc(1, sizeof(t_images));
+  if (!data->images)
+    return (perror(PROGRAM_NAME), 1);
   add_to_garbage(&data->garbage, data->images);
 
   if (init_map(data, path))
@@ -342,13 +321,10 @@ int parsing(char *path, t_game *data) {
     }
     if (store_and_parse_map(line, data))
       return (close(fd), 1);
-    // return (close(fd), free(line), 1);
-    // free(line);
     line = get_next_line(fd);
   }
   if (!cheack_walls(data))
     return (print_error("pMap not Valid\n", RED), 1);
-  printf("line = %s\n", line);
   // if (player_around_walls(data))
   //   return (print_error("Player is around wall\n", RED), 1);
   init_the_player(data);

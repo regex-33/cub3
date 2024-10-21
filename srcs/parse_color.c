@@ -41,27 +41,6 @@ int validate_color(t_game *data, char *color_str) {
   return (color);
 }
 
-int extract_colors(char *line, t_game *data) {
-  char **split = NULL;
-  int result;
-  int i = 0;
-
-  result = -1;
-  split = ft_split(line, ' ');
-  if (!split)
-    return (perror(PROGRAM_NAME), 0);
-  while (split[i])
-    add_to_garbage(&data->garbage, split[i++]);
-  add_to_garbage(&data->garbage, split);
-  if (!ft_strcmp(split[0], "F"))
-    result = process_color(data, split[1], &data->map.floor_color,
-                           "F color format is F R,G,B\n");
-  else if (!ft_strcmp(split[0], "C"))
-    result = process_color(data, split[1], &data->map.ceiling_color,
-                           "C color format is C R,G,B\n");
-  return (result);
-}
-
 void print_2d(char **str) {
   int i = 0;
 
@@ -69,17 +48,6 @@ void print_2d(char **str) {
     printf("str[%d] = %s\n", i, str[i]);
     i++;
   }
-}
-
-int check_commas(char *color_str) {
-  int i = 0;
-
-  while (color_str[i] != '\0') {
-    if (color_str[i] == ',' && color_str[i + 1] == ',')
-      return (0);
-    i++;
-  }
-  return (1);
 }
 
 int process_color(t_game *data, char *color_str, int *color_dest,
@@ -96,15 +64,9 @@ int process_color(t_game *data, char *color_str, int *color_dest,
   commas = ft_strtrim(color_str, ",");
   if (number_of_words(temp) != 3 || ft_strcmp(commas, color_str))
     return (print_error(error_msg, RED), free2d(temp), free(commas), 0);
-  // printf("-----------------\n");
-  // print_2d(temp);
-  // printf("-----------------\n");
   red = validate_color(data, temp[0]);
   green = validate_color(data, temp[1]);
   blue = validate_color(data, temp[2]);
-  // printf("red = %d\n", red);
-  // printf("green = %d\n", green);
-  // printf("blue = %d\n", blue);
   if (red == -1 || green == -1 || blue == -1)
     return (free2d(temp), free(commas), 0);
   if (*color_dest)
@@ -112,4 +74,21 @@ int process_color(t_game *data, char *color_str, int *color_dest,
             free(commas), 0);
   *color_dest = (red << 16) | (green << 8) | blue;
   return (free2d(temp), free(commas), 1);
+}
+
+int extract_colors(char *line, t_game *data) {
+  char **split = NULL;
+  int result;
+
+  result = -1;
+  split = ft_split(line, ' ');
+  if (!split)
+    return (perror(PROGRAM_NAME), 0);
+  if (!ft_strcmp(split[0], "F"))
+    result = process_color(data, split[1], &data->map.floor_color,
+                           "F color format is F R,G,B\n");
+  else if (!ft_strcmp(split[0], "C"))
+    result = process_color(data, split[1], &data->map.ceiling_color,
+                           "C color format is C R,G,B\n");
+  return (free2d(split), result);
 }
