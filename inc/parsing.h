@@ -52,20 +52,11 @@ typedef struct s_garbage {
   struct s_garbage *next;
 } t_garbage;
 
-typedef enum e_direction {
-  NORTH = 0,
-  SOUTH = 0,
-  WEST = 0,
-  EAST = 0
-} t_direction;
-
 typedef struct s_images {
   char *no;
   char *so;
   char *we;
   char *ea;
-  enum e_direction direction;
-
 } t_images;
 
 typedef struct s_map {
@@ -87,18 +78,6 @@ typedef struct s_img {
   int endian;
 } t_img;
 
-typedef struct s_ray // the ray structure
-{
-  double ray_ngl;  // ray angle
-  double distance; // distance to the wall
-  int flag;        // flag for the wall
-  int x;
-  int y;
-  int hit;
-  int wall_hit;
-
-} t_ray;
-
 typedef struct s_player {
   char direction;
   int plyr_x; // player x position in pixels
@@ -119,16 +98,6 @@ typedef struct s_player {
   double turn_speed;
 } t_player;
 
-typedef struct s_imposter {
-  int w;
-  int h;
-
-  void *img_back;
-  void *img_front;
-  void *img_right;
-  void *img_left;
-} t_imposter;
-
 typedef struct s_game {
   void *mlx;
   void *win;
@@ -138,12 +107,9 @@ typedef struct s_game {
 
   t_map map;
   t_img img;
-  t_ray *ray;
   t_player *player;
   t_images *images;
   t_garbage *garbage;
-  // t_direction direction;
-  t_imposter imposter;
 
 } t_game;
 
@@ -185,19 +151,4 @@ int extract_colors(char *line, t_game *data);
 int process_color(t_game *data, char *color_str, int *color_dest,
                   char *error_msg);
 
-// raycasting.c
-
-int drawRays3D(t_game *game);
-void draw_line_dda(t_game *game, int x0, int y0, int x1, int y1, int color);
-void draw_rectangle(t_game *game, int x0, int y0, int x1, int y1, int color);
-
-void draw_wall(t_game *mlx, int ray, int t_pix, int b_pix);
-
-void draw_floor_ceiling(t_game *mlx, int ray, int t_pix, int b_pix);
-int cast_rays(t_game *game);
-float nor_angle(float angle);
-void draw_map2d(t_game *data);
-void put_player(t_game *data);
-void print_2d(char **str);
-bool is_wall(char c);
 #endif

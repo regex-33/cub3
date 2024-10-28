@@ -255,14 +255,8 @@ int init_map(t_game *data, char *path) {
 }
 
 int init_arguments(char *path, t_game *data) {
-  // int i = 0;
   data->garbage = NULL;
 
-  /* don't forget to free memory */
-  // data->mlx = mlx_init();
-  // if (!data->mlx)
-  //   return (print_error("Mlx failed\n", RED), 1);
-  // add_to_garbage(&data->garbage, data->mlx);
   data->images = ft_calloc(1, sizeof(t_images));
   if (!data->images)
     return (perror(PROGRAM_NAME), 1);
@@ -275,11 +269,6 @@ int init_arguments(char *path, t_game *data) {
     return (perror(PROGRAM_NAME), 1);
   add_to_garbage(&data->garbage, data->player);
   data->player->direction = 0;
-
-  data->ray = ft_calloc(1, sizeof(t_ray));
-  if (!data->ray)
-    return (perror(PROGRAM_NAME), 1);
-  add_to_garbage(&data->garbage, data->ray);
 
   return (0);
 }
